@@ -114,8 +114,9 @@ def check_counter():
 
 
 def look_for_apartment():
+    filter = ["type", "rent", "square", "room"]
     driver.get('https://nya.boplats.se/sok?types=1hand&objecttype=alla&rent=7000&squaremeters=40&rooms=3')
-    print("look")
+    print(filter)
     # make an array for changing the settings for the filter
 
 
