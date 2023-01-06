@@ -89,11 +89,8 @@ def check_counter():
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-    # Find the first p element with the 'story' class
-
     clean = soup.find("span", class_="application-count")
 
-    # Print the contents of the p element
     count = re.sub('[\W_]+', "", clean.text)
     print("Mängder sökta lägenheter " + count)
     if int(count) != 5:
