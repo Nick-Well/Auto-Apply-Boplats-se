@@ -1,23 +1,16 @@
-# Import the webdriver and By classes from the selenium module
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
-# from cryptography.fernet import Fernet
 import re
 import getpass
 
-# Set the username and password to empty strings
-
-
 options = Options()
 options.headless = True
-# Create a new Firefox webdriver options=options
-driver = webdriver.Firefox()
+driver = webdriver.Firefox(options=options)
 
-"""key = Fernet.generate_key()
-fernet = Fernet(key)"""
+
 
 userdata = ["name", "pass", "consist"]
 
@@ -41,7 +34,7 @@ def start_up():
     if for_login_ram == "n":
         print("I will not check your login. So wright it correctly or it wont work")
         userdata[0] = input("Personnummer eller E-post:\n")
-        # add encryption
+        # TODO: add encryption
         userdata[1] = getpass.getpass(prompt="Lösenord:\n")
         userdata[2] = input("Spara användardata: Y/n\n") or "y"
         if userdata[2] == "y":
@@ -66,17 +59,13 @@ def start_up():
 
 
 def login():
-    # Navigate to the login page
 
     driver.get('https://nya.boplats.se/framelogin?loginfailed=&amp;complete=true')
 
-    # Find the username field and send the specified keys (empty in this case)
     driver.find_element(By.XPATH, "//*[@id=\"username\"]").send_keys(userdata[0])
 
-    # Find the password field and send the specified keys (empty in this case)
     driver.find_element(By.XPATH, "//*[@id=\"password\"]").send_keys(userdata[1])
 
-    # Find the login button and click it
     driver.find_element(By.XPATH, "//*[@id=\"loginform-submit\"]").click()
     if check_login():
         if check_counter():
@@ -118,7 +107,7 @@ def look_for_apartment():
     driver.get('https://nya.boplats.se/sok?types=1hand&objecttype=alla&rent=7000&squaremeters=40&rooms=3')
     print(filter)
     #work
-    # make an array for changing the settings for the filter
+    # TODO: make an array for changing the settings for the filter
 
 
 start_up()
