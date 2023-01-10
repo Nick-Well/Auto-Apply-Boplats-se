@@ -16,6 +16,7 @@ driver = webdriver.Firefox()
 
 system = platform.system()
 
+for_filter_ram = "n"
 for_login_ram = "n"
 userdata = ["name", "pass", "consist"]
 filter = ["types", "objecttype", "rent", "squaremeters", "rooms"]
@@ -38,7 +39,9 @@ def start_up():
           "having to go in on the web page.\n")
     print("Also the settings are ment to be persistent so you can add this as a automatic service\n"
           "i would recommend to put it on 2am every day as new apartments get added att 1am\n")
+
     clear_screen()
+
     if for_login_ram != "x":
         try:
             for_login = open("userdata.txt", "r", encoding='utf-8')
@@ -50,23 +53,28 @@ def start_up():
             for_login_ram = "n"
 
     if for_login_ram == "n":
+
         print("I will not check your login. So wright it correctly or it wont work")
         userdata[0] = input("Personnummer eller E-post:\n")
         # TODO: add encryption
         userdata[1] = getpass.getpass(prompt="Lösenord:\n")
         userdata[2] = input("Spara användardata: Y/n\n") or "y"
+
         if userdata[2] == "y":
             print("Makes the file")
 
             user_file = open("userdata.txt", "wt", encoding='utf-8')
             for line in userdata:
                 user_file.writelines(line + "\n")
+
             user_file.close()
             print("sparat")
     else:
+
         for_login = open("userdata.txt", "r", encoding='utf-8')
         userdata = [re.sub(r'\n', '', i) for i in for_login.readlines()]
         for_login.close()
+
     login()
 
 
@@ -86,7 +94,8 @@ def login():
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
             # TODO: working progress
-            search_and_destroy(filter_funktion())
+            filter_funktion()
+            search_and_destroy()
 
     else:
         # looping back to ask for new userdata y/n are resurved
@@ -119,46 +128,59 @@ def check_counter():
 
 
 def filter_funktion():
-    housing_types = {
-        0: "normal",
-        1: "accessibilityAdapted",
-        2: "communityAccommodation",
-        3: "cooperativeLease",
-        4: "newProduction",
-        5: "noTenure",
-        6: "retirementHome",
-        7: "senior",
-        8: "shortTimeLease",
-        9: "student"
-    }
-    filter[0] = input("standard är 0\nTyp av lägenhet. nr:"
-                      "0.NORMAL\n"
-                      "1.accessibility Adapted\n"
-                      "2.community Accommodation\n"
-                      "3.cooperative Lease\n"
-                      "4.new Production\n"
-                      "5.no Tenure\n"
-                      "6.retirement Home\n"
-                      "7.senior\n"
-                      "8.short Time Lease\n"
-                      "9.student\n") or 0
-    filter[0] = housing_types[int(filter[0])]
-    filter[1] = input("standard är 1000000\nHyra (max) kr:") or "1000000"
-    filter[2] = input("standard är 5\nBoarea (min) kvadrat meter:") or "5"
-    filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
+    global for_filter_ram
 
-    filter_file = open("filterdata.txt", "wt", encoding='utf-8')
-    for line in userdata:
-        filter_file.writelines(line + "\n")
-    filter_file.close()
+    if for_filter_ram != "x":
+        try:
+            for_filter = open("userdata.txt", "r", encoding='utf-8')
+            for_filter_ram = for_filter.readlines()[4]
+            for_filter.close()
+        except IndexError:
+            for_filter_ram = "n"
+        except FileNotFoundError:
+            for_filter_ram = "n"
 
-    print("sparat")
-    print(filter)
-    return filter
+    if for_filter_ram == "n":
+        housing_types = {
+            0: "normal",
+            1: "accessibilityAdapted",
+            2: "communityAccommodation",
+            3: "cooperativeLease",
+            4: "newProduction",
+            5: "noTenure",
+            6: "retirementHome",
+            7: "senior",
+            8: "shortTimeLease",
+            9: "student"
+        }
+        filter[0] = input("standard är 0\nTyp av lägenhet. nr:"
+                          "0.NORMAL\n"
+                          "1.accessibility Adapted\n"
+                          "2.community Accommodation\n"
+                          "3.cooperative Lease\n"
+                          "4.new Production\n"
+                          "5.no Tenure\n"
+                          "6.retirement Home\n"
+                          "7.senior\n"
+                          "8.short Time Lease\n"
+                          "9.student\n") or 0
+        filter[0] = housing_types[int(filter[0])]
+        filter[1] = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
+        filter[2] = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
+        filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
+        filter[4] = input("standard är y\nSpara val y/n: ") or "y"
+
+        filter_file = open("filterdata.txt", "wt", encoding='utf-8')
+        for line in userdata:
+            filter_file.writelines(line + "\n")
+        filter_file.close()
+
+        print("sparat")
+        print(filter)
 
 
-
-def search_and_destroy(filter):
+def search_and_destroy():
+    global filter
     url_filter = "https://nya.boplats.se/sok?types=1hand&objecttype="\
                 + filter[0]+"&rent="+filter[1]+"&squaremeters="+filter[2]+"&rooms="+filter[3]+"&filterrequirements=on"
     driver.get(url_filter)
