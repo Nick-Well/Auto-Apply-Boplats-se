@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 options = Options()
 options.headless = True
+# TODO: make in invisible
 driver = webdriver.Firefox()
 # options=options test without
 
@@ -90,7 +91,6 @@ def login():
         
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
-            # TODO: working progress
             filter_funktion()
             search_and_destroy()
 
@@ -189,7 +189,14 @@ def search_and_destroy():
                  "&squaremeters="+filter[2] +\
                  "&rooms="+filter[3] +\
                  "&filterrequirements=on"
+
     driver.get(url_filter)
+
+    # TODO: take all links from the page.
+    # TODO: open one take out the information(how meny days intill dead line)
+    # TODO: remove all except the ones that have dead line in one day. so import the day(time).
+    #  and if one day take out where in the qeu you are. sort the list with highest "chans"
+    #  proceed by pressing apply on all intill the counter is 5
 
 
 start_up()
