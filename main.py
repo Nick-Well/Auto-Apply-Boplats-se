@@ -7,7 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
+from datetime import datetime
 
+today = datetime.today().date()
+day_of_month = today.day
+print(day_of_month)
 
 options = Options()
 options.headless = True
@@ -18,7 +22,7 @@ driver = webdriver.Firefox()
 system = platform.system()
 
 userdata = ["name", "pass", "consist", "n"]
-filter = ["types", "object_type", "rent", "square_meters", "rooms", "n"]
+url_filter = ["types", "object_type", "rent", "square_meters", "rooms", "n"]
 
 
 def clear_screen():
@@ -85,10 +89,10 @@ def login():
     driver.find_element(By.XPATH, "//*[@id=\"password\"]").send_keys(userdata[1])
 
     driver.find_element(By.XPATH, "//*[@id=\"loginform-submit\"]").click()
-    
+
     # checking if valid userdata
     if check_login():
-        
+
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
             filter_funktion()
@@ -110,6 +114,8 @@ def check_login():
 
 
 def check_counter():
+    # TODO: this check counter doesnt work as the number can change over 5 so checking the actual apartment if it
+    #  lets you apply is the solution
     bol = False
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -119,25 +125,25 @@ def check_counter():
     count = re.sub('[\W_]+', "", clean.text)
     print("Mängder sökta lägenheter " + count)
     # TODO: 5
-    if int(count) != 6:
+    if int(count) != 10:
         bol = True
 
     return bol
 
 
 def filter_funktion():
-    global filter
-    if filter[4] != "x":
+    global url_filter
+    if url_filter[4] != "x":
         try:
             for_filter = open("filterdata.txt", "r", encoding='utf-8')
-            filter[4] = for_filter.readlines()[4]
+            url_filter[4] = for_filter.readlines()[4]
             for_filter.close()
         except IndexError:
-            filter[4] = "n"
+            url_filter[4] = "n"
         except FileNotFoundError:
-            filter[4] = "n"
+            url_filter[4] = "n"
 
-    if filter[4] == "n":
+    if url_filter[4] == "n":
         housing_types = {
             0: "normal",
             1: "accessibilityAdapted",
@@ -150,53 +156,67 @@ def filter_funktion():
             8: "shortTimeLease",
             9: "student"
         }
-        filter[0] = input("standard är 0\n"
-                          "0.NORMAL\n"
-                          "1.accessibility Adapted\n"
-                          "2.community Accommodation\n"
-                          "3.cooperative Lease\n"
-                          "4.new Production\n"
-                          "5.no Tenure\n"
-                          "6.retirement Home\n"
-                          "7.senior\n"
-                          "8.short Time Lease\n"
-                          "9.student\nTyp av lägenhet. nr:\n") or 0
-        filter[0] = housing_types[int(filter[0])]
-        filter[1] = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
-        filter[2] = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
-        filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
-        filter[4] = input("standard är y\nSpara val y/n: ") or "y"
+        url_filter[0] = input("standard är 0\n"
+                              "0.NORMAL\n"
+                              "1.accessibility Adapted\n"
+                              "2.community Accommodation\n"
+                              "3.cooperative Lease\n"
+                              "4.new Production\n"
+                              "5.no Tenure\n"
+                              "6.retirement Home\n"
+                              "7.senior\n"
+                              "8.short Time Lease\n"
+                              "9.student\nTyp av lägenhet. nr:\n") or 0
+        url_filter[0] = housing_types[int(url_filter[0])]
+        url_filter[1] = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
+        url_filter[2] = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
+        url_filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
+        url_filter[4] = input("standard är y\nSpara val y/n: ") or "y"
 
-        if filter[4] == "y":
+        if url_filter[4] == "y":
             print("Makes the file")
             filter_file = open("filterdata.txt", "wt", encoding='utf-8')
-            for line in filter:
+            for line in url_filter:
                 filter_file.writelines(line + "\n")
             filter_file.close()
 
         print("sparat")
     else:
         filter_file = open("filterdata.txt", "r", encoding='utf-8')
-        filter = [re.sub(r'\n', '', i) for i in filter_file.readlines()]
+        url_filter = [re.sub(r'\n', '', i) for i in filter_file.readlines()]
         filter_file.close()
 
 
 def search_and_destroy():
-    global filter
+    global url_filter
+    link_list = []
+    new_link_list = []
     url_filter = "https://nya.boplats.se/sok?types=1hand" \
-                 "&objecttype="+filter[0] +\
-                 "&rent="+filter[1] +\
-                 "&squaremeters="+filter[2] +\
-                 "&rooms="+filter[3] +\
+                 "&objecttype=" + url_filter[0] + \
+                 "&rent=" + url_filter[1] + \
+                 "&squaremeters=" + url_filter[2] + \
+                 "&rooms=" + url_filter[3] + \
                  "&filterrequirements=on"
 
     driver.get(url_filter)
 
-    # TODO: take all links from the page.
-    # TODO: open one take out the information(how meny days intill dead line)
-    # TODO: remove all except the ones that have dead line in one day. so import the day(time).
-    #  and if one day take out where in the qeu you are. sort the list with highest "chans"
-    #  proceed by pressing apply on all intill the counter is 5
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    for link in soup.find_all('a', class_="search-result-link"):
+        href = link['href']
+        link_list.append(href)
+
+    # clean the links so there's only the one's that end today
+
+    for link in link_list:
+        driver.get(link)
+        element = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]"
+                                                "/div/div/div/div/div/div[1]"
+                                                "/div/div[2]/div[3]/p[5]/span[2]")
+        cleaned_text = int(re.sub('[a-zA-Z\W_]', "", element.text))
+        if cleaned_text == day_of_month:
+            new_link_list.append(link)
+    print(new_link_list)
 
 
 start_up()
