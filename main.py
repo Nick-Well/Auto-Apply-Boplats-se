@@ -16,10 +16,8 @@ driver = webdriver.Firefox()
 
 system = platform.system()
 
-for_filter_ram = "n"
-for_login_ram = "n"
-userdata = ["name", "pass", "consist"]
-filter = ["types", "objecttype", "rent", "squaremeters", "rooms"]
+userdata = ["name", "pass", "consist", "n"]
+filter = ["types", "object_type", "rent", "square_meters", "rooms", "n"]
 
 
 def clear_screen():
@@ -32,8 +30,7 @@ def clear_screen():
 
 
 def start_up():
-    global userdata 
-    global for_login_ram
+    global userdata
     print(system)
     print("\nWelcome, this script is made to make it easier to look for apartment without actually "
           "having to go in on the web page.\n")
@@ -42,17 +39,17 @@ def start_up():
 
     clear_screen()
 
-    if for_login_ram != "x":
+    if userdata[3] != "x":
         try:
             for_login = open("userdata.txt", "r", encoding='utf-8')
-            for_login_ram = for_login.readlines()[2]
+            userdata[3] = for_login.readlines()[2]
             for_login.close()
         except IndexError:
-            for_login_ram = "n"
+            userdata[3] = "n"
         except FileNotFoundError:
-            for_login_ram = "n"
+            userdata[3] = "n"
 
-    if for_login_ram == "n":
+    if userdata[3] == "n":
 
         print("I will not check your login. So wright it correctly or it wont work")
         userdata[0] = input("Personnummer eller E-post:\n")
@@ -79,7 +76,7 @@ def start_up():
 
 
 def login():
-    global for_login_ram
+    global userdata
     driver.get('https://nya.boplats.se/framelogin?loginfailed=&amp;complete=true')
 
     driver.find_element(By.XPATH, "//*[@id=\"username\"]").send_keys(userdata[0])
@@ -99,7 +96,7 @@ def login():
 
     else:
         # looping back to ask for new userdata y/n are resurved
-        for_login_ram = "x"
+        userdata = "x"
         print("login failed name or password was wrong")
         start_up()
 
@@ -121,26 +118,26 @@ def check_counter():
 
     count = re.sub('[\W_]+', "", clean.text)
     print("Mängder sökta lägenheter " + count)
-    if int(count) != 5:
+    # TODO: 5
+    if int(count) != 6:
         bol = True
 
     return bol
 
 
 def filter_funktion():
-    global for_filter_ram
-
-    if for_filter_ram != "x":
+    global filter
+    if filter[4] != "x":
         try:
-            for_filter = open("userdata.txt", "r", encoding='utf-8')
-            for_filter_ram = for_filter.readlines()[4]
+            for_filter = open("filterdata.txt", "r", encoding='utf-8')
+            filter[4] = for_filter.readlines()[4]
             for_filter.close()
         except IndexError:
-            for_filter_ram = "n"
+            filter[4] = "n"
         except FileNotFoundError:
-            for_filter_ram = "n"
+            filter[4] = "n"
 
-    if for_filter_ram == "n":
+    if filter[4] == "n":
         housing_types = {
             0: "normal",
             1: "accessibilityAdapted",
@@ -153,7 +150,7 @@ def filter_funktion():
             8: "shortTimeLease",
             9: "student"
         }
-        filter[0] = input("standard är 0\nTyp av lägenhet. nr:"
+        filter[0] = input("standard är 0\n"
                           "0.NORMAL\n"
                           "1.accessibility Adapted\n"
                           "2.community Accommodation\n"
@@ -163,26 +160,35 @@ def filter_funktion():
                           "6.retirement Home\n"
                           "7.senior\n"
                           "8.short Time Lease\n"
-                          "9.student\n") or 0
+                          "9.student\nTyp av lägenhet. nr:\n") or 0
         filter[0] = housing_types[int(filter[0])]
         filter[1] = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
         filter[2] = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
         filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
         filter[4] = input("standard är y\nSpara val y/n: ") or "y"
 
-        filter_file = open("filterdata.txt", "wt", encoding='utf-8')
-        for line in userdata:
-            filter_file.writelines(line + "\n")
-        filter_file.close()
+        if filter[4] == "y":
+            print("Makes the file")
+            filter_file = open("filterdata.txt", "wt", encoding='utf-8')
+            for line in filter:
+                filter_file.writelines(line + "\n")
+            filter_file.close()
 
         print("sparat")
-        print(filter)
+    else:
+        filter_file = open("filterdata.txt", "r", encoding='utf-8')
+        filter = [re.sub(r'\n', '', i) for i in filter_file.readlines()]
+        filter_file.close()
 
 
 def search_and_destroy():
     global filter
-    url_filter = "https://nya.boplats.se/sok?types=1hand&objecttype="\
-                + filter[0]+"&rent="+filter[1]+"&squaremeters="+filter[2]+"&rooms="+filter[3]+"&filterrequirements=on"
+    url_filter = "https://nya.boplats.se/sok?types=1hand" \
+                 "&objecttype="+filter[0] +\
+                 "&rent="+filter[1] +\
+                 "&squaremeters="+filter[2] +\
+                 "&rooms="+filter[3] +\
+                 "&filterrequirements=on"
     driver.get(url_filter)
 
 
