@@ -15,12 +15,11 @@ print(day_of_month)
 
 options = Options()
 options.headless = True
-# TODO: make in invisible
-driver = webdriver.Firefox()
-# options=options test without
+driver = webdriver.Firefox(options=options)
 
 system = platform.system()
-
+count = 0
+count_left = 0
 userdata = ["name", "pass", "consist", "n"]
 url_filter = ["types", "object_type", "rent", "square_meters", "rooms", "n"]
 
@@ -96,16 +95,18 @@ def login():
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
             filter_funktion()
+            print("scriptet går igenom hemsidorna. detta kan ta ett liten stund")
             search_and_destroy()
 
     else:
-        # looping back to ask for new userdata y/n are resurved
+        # looping back to ask for new userdata y/n are reserved
         userdata = "x"
         print("login failed name or password was wrong")
         start_up()
 
 
 def check_login():
+    # being sneaky and taking somthing that is only visible wen logged in
     try:
         driver.find_element(By.XPATH, "/html/body/div[1]/div/div[5]/div[1]/div[1]/span[1]")
     except NoSuchElementException:
@@ -114,18 +115,15 @@ def check_login():
 
 
 def check_counter():
-    # TODO: this check counter doesnt work as the number can change over 5 so checking the actual apartment if it
-    #  lets you apply is the solution
+    global count, count_left
     bol = False
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-    clean = soup.find("span", class_="application-count")
-
-    count = re.sub('[\W_]+', "", clean.text)
-    print("Mängder sökta lägenheter " + count)
-    # TODO: 5
-    if int(count) != 10:
+    # the only objects that use class removebutton is the actually applied apartments
+    count = len(soup.find_all(class_='removebutton'))
+    count_left = 5 - count
+    print("Mängder sökta lägenheter " + str(count) + "\nkvar att söka " + str(count_left))
+    if int(count) != 5:
         bol = True
 
     return bol
@@ -179,8 +177,8 @@ def filter_funktion():
             for line in url_filter:
                 filter_file.writelines(line + "\n")
             filter_file.close()
-
-        print("sparat")
+            print("sparat")
+    # reading the saved filter data from before
     else:
         filter_file = open("filterdata.txt", "r", encoding='utf-8')
         url_filter = [re.sub(r'\n', '', i) for i in filter_file.readlines()]
@@ -188,7 +186,7 @@ def filter_funktion():
 
 
 def search_and_destroy():
-    global url_filter
+    global url_filter, count_left
     link_list = []
     new_link_list = []
     url_filter = "https://nya.boplats.se/sok?types=1hand" \
@@ -201,23 +199,44 @@ def search_and_destroy():
     driver.get(url_filter)
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-
+    # scrape for links
     for link in soup.find_all('a', class_="search-result-link"):
         href = link['href']
         link_list.append(href)
 
-    # clean the links so there's only the one's that end today
-
+    # going through all the links
     for link in link_list:
         driver.get(link)
         element = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]"
                                                 "/div/div/div/div/div/div[1]"
                                                 "/div/div[2]/div[3]/p[5]/span[2]")
         cleaned_text = int(re.sub('[a-zA-Z\W_]', "", element.text))
+        # singel out: one day deadline
         if cleaned_text == day_of_month:
-            new_link_list.append(link)
+            applicant = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]"
+                                                      "/div/div/div/div/div/div[1]"
+                                                      "/div/div[2]/div[4]/div[2]/p"
+                                                      "/span/strong/a")
+            text = applicant.text
+            numbers = re.findall(r'\d+', text)
+            # if you have applied there will only be one number so
+            # checking if there's 2 gives you the option,
+            # only to make a list that have apartment that you can apply too
+            if len(numbers) >= 2:
+                new_link_list.append(link)
+    i = 0
+    for link in new_link_list:
+        if i == count_left:
+            break
+        else:
+            print("söker till lägenheten: " + link)
+            driver.get(link)
+            driver.find_element(By.XPATH, "//*[@id=\"large-apply-button\"]").click()
+        i = +1
+    if not new_link_list:
+        print("Det finns inget att söka")
     print(new_link_list)
 
 
 start_up()
-# driver.quit()
+driver.quit()
