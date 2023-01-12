@@ -1,8 +1,13 @@
 # Automaticly scrape and look for apartments on boplats
-är ej fungerande just nu, men jobbar på de grundlägade funktionerna ett i taget.
+att this point the script does what it should. that would be:
+makes you log in
+ask for you prefrences
+takes out the ones that match your chouses and applies to thouse apartment
 
 # todo:
 
-*bedöm av alla anonser om du har störst chans att få (genom att bedömma vart du ligger i kön)
+Add more comments in the code
+sort the apartments after which you have the most chans to get
 
-*fixa max ansökningar
+restart the filter/login
+
