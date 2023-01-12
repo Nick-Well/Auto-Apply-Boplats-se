@@ -7,7 +7,9 @@ takes out the ones that match your chouses and applies to thouse apartment
 # todo:
 
 Add more comments in the code
+
 sort the apartments after which you have the most chans to get
+
 
 restart the filter/login
 
