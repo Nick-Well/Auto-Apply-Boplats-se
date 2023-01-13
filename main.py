@@ -189,6 +189,8 @@ def search_and_destroy():
     global url_filter, count_left
     link_list = []
     new_link_list = []
+    procent = []
+
     url_filter = "https://nya.boplats.se/sok?types=1hand" \
                  "&objecttype=" + url_filter[0] + \
                  "&rent=" + url_filter[1] + \
@@ -223,7 +225,13 @@ def search_and_destroy():
             # checking if there's 2 gives you the option,
             # only to make a list that have apartment that you can apply too
             if len(numbers) >= 2:
+                procent.append(numbers[1]/numbers[0])
                 new_link_list.append(link)
+                """bool = True
+    if bool == True:
+        combined = list(zip(new_link_list, procent))
+        combined.sort(key=lambda x: x[1], reverse=True)"""
+# TODO: more testing most be done 
     i = 0
     for link in new_link_list:
         if i == count_left:
