@@ -225,13 +225,11 @@ def search_and_destroy():
             # checking if there's 2 gives you the option,
             # only to make a list that have apartment that you can apply too
             if len(numbers) >= 2:
-                procent.append(numbers[1]/numbers[0])
+                procent.append(int(numbers[1])/int(numbers[0]))
                 new_link_list.append(link)
-                """bool = True
-    if bool == True:
-        combined = list(zip(new_link_list, procent))
-        combined.sort(key=lambda x: x[1], reverse=True)"""
-# TODO: more testing most be done 
+                combined = list(zip(new_link_list, procent))
+                combined.sort(key=lambda x: x[1])
+    clear_screen()
     i = 0
     for link in new_link_list:
         if i == count_left:
@@ -243,7 +241,7 @@ def search_and_destroy():
         i = +1
     if not new_link_list:
         print("Det finns inget att söka")
-    print(new_link_list)
+    print("har sökt: " + str(i) + " lägenheter")
 
 
 start_up()
