@@ -18,10 +18,120 @@ options.headless = True
 driver = webdriver.Firefox(options=options)
 
 system = platform.system()
-count = 0
-count_left = 0
-userdata = ["name", "pass", "consist", "n"]
-url_filter = ["types", "object_type", "rent", "square_meters", "rooms", "n"]
+
+
+class UserData:
+    def __init__(self, name, password, consist):
+        self.name = name
+        self.password = password
+        self.consist = consist
+
+    def __iter__(self):
+        self.index = 0
+        return self
+
+    def __next__(self):
+        if self.index == 0:
+            result = self.name
+        elif self.index == 1:
+            result = self.password
+        elif self.index == 2:
+            result = self.consist
+        else:
+            raise StopIteration
+        self.index += 1
+        return result
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.name
+        elif index == 1:
+            return self.password
+        elif index == 2:
+            return self.consist
+        else:
+            raise IndexError
+
+    @classmethod
+    def from_file(cls, file_path):
+        with open(file_path, 'r') as f:
+            data = [re.sub(r'\n', '', i) for i in f.readlines()]
+            return cls(*data)
+
+
+class UrlFilter:
+    _instance = None
+
+    def __init__(self, object_type, rent, square_meters, rooms, consist):
+        self.object_type = object_type
+        self.rent = rent
+        self.square_meters = square_meters
+        self.rooms = rooms
+        self.consist = consist
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.object_type
+        elif index == 1:
+            return self.rent
+        elif index == 2:
+            return self.square_meters
+        elif index == 3:
+            return self.rooms
+        elif index == 4:
+            return self.consist
+        else:
+            raise IndexError
+
+    def __setitem__(self, index, value):
+        if index == 0:
+            self.object_type = value
+        elif index == 1:
+            self.rent = value
+        elif index == 2:
+            self.square_meters = value
+        elif index == 3:
+            self.rooms = value
+        elif index == 4:
+            self.consist = value
+        else:
+            raise IndexError
+
+    @classmethod
+    def from_file(cls, filename):
+        with open(filename) as f:
+            data = [line.strip() for line in f]
+        return cls.get_instance(*data)
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = cls(*args, **kwargs)
+        return cls._instance
+
+
+class Counters:
+    _instance = None
+
+    def __init__(self, count, count_left):
+        self.count = count
+        self.count_left = count_left
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self.object_type
+        elif index == 1:
+            return self.rent
+        else:
+            raise IndexError
+
+    def __setitem__(self, index, value):
+        if index == 0:
+            self.object_type = value
+        elif index == 1:
+            self.rent = value
+        else:
+            raise IndexError
 
 
 def clear_screen():
@@ -34,7 +144,8 @@ def clear_screen():
 
 
 def start_up():
-    global userdata
+    userdata = ["name", "pass", "consist"]
+    user = UserData(*userdata)
     print(system)
     print("\nWelcome, this script is made to make it easier to look for apartment without actually "
           "having to go in on the web page.\n")
@@ -43,49 +154,45 @@ def start_up():
 
     clear_screen()
 
-    if userdata[3] != "x":
+    if user.consist != "x":
         try:
             for_login = open("userdata.txt", "r", encoding='utf-8')
-            userdata[3] = for_login.readlines()[2]
+            user.consist = for_login.readlines()[2]
             for_login.close()
         except IndexError:
-            userdata[3] = "n"
+            user.consist = "n"
         except FileNotFoundError:
-            userdata[3] = "n"
+            user.consist = "n"
 
-    if userdata[3] == "n":
+    if user.consist == "n":
 
         print("I will not check your login. So wright it correctly or it wont work")
-        userdata[0] = input("Personnummer eller E-post:\n")
+        user.name = input("Personnummer eller E-post:\n")
         # TODO: add encryption
-        userdata[1] = getpass.getpass(prompt="Lösenord:\n")
-        userdata[2] = input("Spara användardata: Y/n\n") or "y"
+        user.password = getpass.getpass(prompt="Lösenord:\n")
+        user.consist = input("Spara användardata: Y/n\n") or "y"
 
-        if userdata[2] == "y":
+        if user.consist == "y":
             print("Makes the file")
 
             user_file = open("userdata.txt", "wt", encoding='utf-8')
-            for line in userdata:
+            for line in user:
                 user_file.writelines(line + "\n")
 
             user_file.close()
             print("sparat")
     else:
+        user = UserData.from_file('userdata.txt')
 
-        for_login = open("userdata.txt", "r", encoding='utf-8')
-        userdata = [re.sub(r'\n', '', i) for i in for_login.readlines()]
-        for_login.close()
-
-    login()
+    login(user)
 
 
-def login():
-    global userdata
+def login(user):
     driver.get('https://nya.boplats.se/framelogin?loginfailed=&amp;complete=true')
 
-    driver.find_element(By.XPATH, "//*[@id=\"username\"]").send_keys(userdata[0])
+    driver.find_element(By.XPATH, "//*[@id=\"username\"]").send_keys(user.name)
 
-    driver.find_element(By.XPATH, "//*[@id=\"password\"]").send_keys(userdata[1])
+    driver.find_element(By.XPATH, "//*[@id=\"password\"]").send_keys(user.password)
 
     driver.find_element(By.XPATH, "//*[@id=\"loginform-submit\"]").click()
 
@@ -95,12 +202,10 @@ def login():
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
             filter_funktion()
-            print("scriptet går igenom hemsidorna. detta kan ta ett liten stund")
-            search_and_destroy()
 
     else:
         # looping back to ask for new userdata y/n are reserved
-        userdata = "x"
+        user.consist = "x"
         print("login failed name or password was wrong")
         start_up()
 
@@ -115,33 +220,33 @@ def check_login():
 
 
 def check_counter():
-    global count, count_left
     bol = False
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # the only objects that use class removebutton is the actually applied apartments
-    count = len(soup.find_all(class_='removebutton'))
-    count_left = 5 - count
-    print("Mängder sökta lägenheter " + str(count) + "\nkvar att söka " + str(count_left))
-    if int(count) != 5:
+    Counters.count = len(soup.find_all(class_='removebutton'))
+    Counters.count_left = 5 - Counters.count
+    print("Mängder sökta lägenheter " + str(Counters.count) + "\nkvar att söka " + str(Counters.count_left))
+    if int(Counters.count) != 5:
         bol = True
 
     return bol
 
 
 def filter_funktion():
-    global url_filter
-    if url_filter[4] != "x":
+    url_filter = ["object_type", "rent", "square_meters", "rooms", "consist"]
+    poll_filters = UrlFilter(*url_filter)
+    if poll_filters[4] != "x":
         try:
             for_filter = open("filterdata.txt", "r", encoding='utf-8')
-            url_filter[4] = for_filter.readlines()[4]
+            poll_filters[4] = for_filter.readlines()[4]
             for_filter.close()
         except IndexError:
-            url_filter[4] = "n"
+            poll_filters[4] = "n"
         except FileNotFoundError:
-            url_filter[4] = "n"
+            poll_filters[4] = "n"
 
-    if url_filter[4] == "n":
+    if poll_filters[4] == "n":
         housing_types = {
             0: "normal",
             1: "accessibilityAdapted",
@@ -154,51 +259,49 @@ def filter_funktion():
             8: "shortTimeLease",
             9: "student"
         }
-        url_filter[0] = input("standard är 0\n"
-                              "0.NORMAL\n"
-                              "1.accessibility Adapted\n"
-                              "2.community Accommodation\n"
-                              "3.cooperative Lease\n"
-                              "4.new Production\n"
-                              "5.no Tenure\n"
-                              "6.retirement Home\n"
-                              "7.senior\n"
-                              "8.short Time Lease\n"
-                              "9.student\nTyp av lägenhet. nr:\n") or 0
-        url_filter[0] = housing_types[int(url_filter[0])]
-        url_filter[1] = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
-        url_filter[2] = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
-        url_filter[3] = input("standard är 1\nAntal rum (min) ") or "1"
-        url_filter[4] = input("standard är y\nSpara val y/n: ") or "y"
+        poll_filters.types = housing_types[int(input("standard är 0\n"
+                                                     "0.NORMAL\n"
+                                                     "1.accessibility Adapted\n"
+                                                     "2.community Accommodation\n"
+                                                     "3.cooperative Lease\n"
+                                                     "4.new Production\n"
+                                                     "5.no Tenure\n"
+                                                     "6.retirement Home\n"
+                                                     "7.senior\n"
+                                                     "8.short Time Lease\n"
+                                                     "9.student\nTyp av lägenhet. nr:\n") or 0)]
+        poll_filters.rent = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
+        poll_filters.square_meters = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
+        poll_filters.rooms = input("standard är 1\nAntal rum (min) ") or "1"
+        poll_filters.consist = input("standard är y\nSpara val y/n: ") or "y"
 
-        if url_filter[4] == "y":
+        if poll_filters.consist == "y":
             print("Makes the file")
             filter_file = open("filterdata.txt", "wt", encoding='utf-8')
-            for line in url_filter:
+            for line in poll_filters:
                 filter_file.writelines(line + "\n")
             filter_file.close()
             print("sparat")
     # reading the saved filter data from before
     else:
-        filter_file = open("filterdata.txt", "r", encoding='utf-8')
-        url_filter = [re.sub(r'\n', '', i) for i in filter_file.readlines()]
-        filter_file.close()
+        poll_filters = UrlFilter.from_file('filterdata.txt')
+        print("scriptet går igenom hemsidorna. detta kan ta ett liten stund")
+        search_and_destroy(poll_filters)
 
 
-def search_and_destroy():
-    global url_filter, count_left
+def search_and_destroy(url_filters):
     link_list = []
     new_link_list = []
     procent = []
 
-    url_filter = "https://nya.boplats.se/sok?types=1hand" \
-                 "&objecttype=" + url_filter[0] + \
-                 "&rent=" + url_filter[1] + \
-                 "&squaremeters=" + url_filter[2] + \
-                 "&rooms=" + url_filter[3] + \
-                 "&filterrequirements=on"
+    url = "https://nya.boplats.se/sok?types=1hand" \
+          "&objecttype=" + url_filters.object_type + \
+          "&rent=" + url_filters.rent + \
+          "&squaremeters=" + url_filters.square_meters + \
+          "&rooms=" + url_filters.rooms + \
+          "&filterrequirements=on"
 
-    driver.get(url_filter)
+    driver.get(url)
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # scrape for links
@@ -225,14 +328,14 @@ def search_and_destroy():
             # checking if there's 2 gives you the option,
             # only to make a list that have apartment that you can apply too
             if len(numbers) >= 2:
-                procent.append(int(numbers[1])/int(numbers[0]))
+                procent.append(int(numbers[1]) / int(numbers[0]))
                 new_link_list.append(link)
                 combined = list(zip(new_link_list, procent))
                 combined.sort(key=lambda x: x[1])
     clear_screen()
     i = 0
     for link in new_link_list:
-        if i == count_left:
+        if i == Counters.count_left:
             break
         else:
             print("söker till lägenheten: " + link)
