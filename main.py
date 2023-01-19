@@ -1,7 +1,10 @@
 import re
 import getpass
 import platform
+# This is for cleaning the screen
 import subprocess
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -11,7 +14,6 @@ from datetime import datetime
 
 today = datetime.today().date()
 day_of_month = today.day
-print(day_of_month)
 
 options = Options()
 options.headless = True
@@ -146,14 +148,13 @@ def clear_screen():
 def start_up():
     userdata = ["name", "pass", "consist"]
     user = UserData(*userdata)
-    print(system)
+    clear_screen()
     print("\nWelcome, this script is made to make it easier to look for apartment without actually "
           "having to go in on the web page.\n")
     print("Also the settings are ment to be persistent so you can add this as a automatic service\n"
-          "i would recommend to put it on 2am every day as new apartments get added att 1am\n")
-
+          "I would recommend to put it on 2am every day as new apartments get added att 1am.\n")
+    time.sleep(10)
     clear_screen()
-
     if user.consist != "x":
         try:
             for_login = open("userdata.txt", "r", encoding='utf-8')
@@ -168,7 +169,6 @@ def start_up():
 
         print("I will not check your login. So wright it correctly or it wont work")
         user.name = input("Personnummer eller E-post:\n")
-        # TODO: add encryption
         user.password = getpass.getpass(prompt="Lösenord:\n")
         user.consist = input("Spara användardata: Y/n\n") or "y"
 
@@ -226,10 +226,11 @@ def check_counter():
     # the only objects that use class removebutton is the actually applied apartments
     Counters.count = len(soup.find_all(class_='removebutton'))
     Counters.count_left = 5 - Counters.count
-    print("Mängder sökta lägenheter " + str(Counters.count) + "\nkvar att söka " + str(Counters.count_left))
-    if int(Counters.count) != 5:
+    if Counters.count != 5:
+        print("Mängder sökta lägenheter " + str(Counters.count) + "\nkvar att söka " + str(Counters.count_left))
         bol = True
-
+    elif Counters.count_left == 0:
+        print("Du har sökt max antal lägenheter för idag.")
     return bol
 
 
@@ -285,7 +286,7 @@ def filter_funktion():
     # reading the saved filter data from before
     else:
         poll_filters = UrlFilter.from_file('filterdata.txt')
-        print("scriptet går igenom hemsidorna. detta kan ta ett liten stund")
+        print("Scriptet går igenom hemsidorna. Detta kan ta ett liten stund.")
         search_and_destroy(poll_filters)
 
 
@@ -344,7 +345,7 @@ def search_and_destroy(url_filters):
         i = +1
     if not new_link_list:
         print("Det finns inget att söka")
-    print("har sökt: " + str(i) + " lägenheter")
+    print("har sökt: " + str(6-i) + " lägenheter")
 
 
 start_up()
