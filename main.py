@@ -1,23 +1,25 @@
 import re
 import getpass
 import platform
-# This is for cleaning the screen
 import subprocess
 import time
+from datetime import datetime
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
+from webdriver_manager.firefox import GeckoDriverManager
+
 from bs4 import BeautifulSoup
-from datetime import datetime
+
 
 today = datetime.today().date()
 day_of_month = today.day
 
 options = Options()
 options.headless = True
-driver = webdriver.Firefox(options=options)
+driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
 
 system = platform.system()
 
