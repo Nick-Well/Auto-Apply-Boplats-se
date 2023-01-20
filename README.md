@@ -6,11 +6,14 @@ makes you log in
 ask for you prefrences
 
 takes out the ones that match your chouses and applies to thouse apartment
+# install:
+you will need python 3, firefox, pip, selenium, BeautifulSoup4
+
 
 # todo:
 
 Add more comments in the code
-sort the apartments after which you have the most chans to get
+make it easyer to install.
 
 restart the filter/login
 
