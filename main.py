@@ -12,7 +12,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 from bs4 import BeautifulSoup
 
-
 today = datetime.today().date()
 day_of_month = today.day
 
@@ -263,16 +262,16 @@ def filter_funktion():
             9: "student"
         }
         object_type_number = input("standard är 0\n"
-               "0.NORMAL\n"
-               "1.accessibility Adapted\n"
-               "2.community Accommodation\n"
-               "3.cooperative Lease\n"
-               "4.new Production\n"
-               "5.no Tenure\n"
-               "6.retirement Home\n"
-               "7.senior\n"
-               "8.short Time Lease\n"
-               "9.student\nTyp av lägenhet. nr:\n") or 0
+                                   "0.NORMAL\n"
+                                   "1.accessibility Adapted\n"
+                                   "2.community Accommodation\n"
+                                   "3.cooperative Lease\n"
+                                   "4.new Production\n"
+                                   "5.no Tenure\n"
+                                   "6.retirement Home\n"
+                                   "7.senior\n"
+                                   "8.short Time Lease\n"
+                                   "9.student\nTyp av lägenhet. nr:\n") or 0
         poll_filters.object_type = housing_types[object_type_number]
         poll_filters.rent = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
         poll_filters.square_meters = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
