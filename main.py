@@ -9,7 +9,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.firefox import GeckoDriverManager
 
 from bs4 import BeautifulSoup
 
@@ -19,7 +18,7 @@ day_of_month = today.day
 
 options = Options()
 options.headless = True
-driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
+driver = webdriver.Firefox(options=options)
 
 system = platform.system()
 
@@ -229,7 +228,8 @@ def check_counter():
     Counters.count = len(soup.find_all(class_='removebutton'))
     Counters.count_left = 5 - Counters.count
     if Counters.count != 5:
-        print("Mängder sökta lägenheter " + str(Counters.count) + "\nkvar att söka " + str(Counters.count_left))
+        print("Activa sökningar för lägenheter: " + str(Counters.count)
+              + "\nkvar att söka: " + str(Counters.count_left) + "\n")
         bol = True
     elif Counters.count_left == 0:
         print("Du har sökt max antal lägenheter för idag.")
@@ -262,17 +262,18 @@ def filter_funktion():
             8: "shortTimeLease",
             9: "student"
         }
-        poll_filters.types = housing_types[int(input("standard är 0\n"
-                                                     "0.NORMAL\n"
-                                                     "1.accessibility Adapted\n"
-                                                     "2.community Accommodation\n"
-                                                     "3.cooperative Lease\n"
-                                                     "4.new Production\n"
-                                                     "5.no Tenure\n"
-                                                     "6.retirement Home\n"
-                                                     "7.senior\n"
-                                                     "8.short Time Lease\n"
-                                                     "9.student\nTyp av lägenhet. nr:\n") or 0)]
+        object_type_number = input("standard är 0\n"
+               "0.NORMAL\n"
+               "1.accessibility Adapted\n"
+               "2.community Accommodation\n"
+               "3.cooperative Lease\n"
+               "4.new Production\n"
+               "5.no Tenure\n"
+               "6.retirement Home\n"
+               "7.senior\n"
+               "8.short Time Lease\n"
+               "9.student\nTyp av lägenhet. nr:\n") or 0
+        poll_filters.object_type = housing_types[object_type_number]
         poll_filters.rent = input("standard är 1000000\nHyra (max) kr: ") or "1000000"
         poll_filters.square_meters = input("standard är 5\nBoarea (min) kvadrat meter: ") or "5"
         poll_filters.rooms = input("standard är 1\nAntal rum (min) ") or "1"
@@ -285,6 +286,7 @@ def filter_funktion():
                 filter_file.writelines(line + "\n")
             filter_file.close()
             print("sparat")
+        search_and_destroy(poll_filters)
     # reading the saved filter data from before
     else:
         poll_filters = UrlFilter.from_file('filterdata.txt')
@@ -303,7 +305,6 @@ def search_and_destroy(url_filters):
           "&squaremeters=" + url_filters.square_meters + \
           "&rooms=" + url_filters.rooms + \
           "&filterrequirements=on"
-
     driver.get(url)
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -311,7 +312,6 @@ def search_and_destroy(url_filters):
     for link in soup.find_all('a', class_="search-result-link"):
         href = link['href']
         link_list.append(href)
-
     # going through all the links
     for link in link_list:
         driver.get(link)
@@ -330,7 +330,7 @@ def search_and_destroy(url_filters):
             # if you have applied there will only be one number so
             # checking if there's 2 gives you the option,
             # only to make a list that have apartment that you can apply too
-            if len(numbers) >= 2:
+            if len(numbers) == 2:
                 procent.append(int(numbers[1]) / int(numbers[0]))
                 new_link_list.append(link)
                 combined = list(zip(new_link_list, procent))
@@ -347,7 +347,7 @@ def search_and_destroy(url_filters):
         i = +1
     if not new_link_list:
         print("Det finns inget att söka")
-    print("har sökt: " + str(6-i) + " lägenheter")
+    print("har sökt: " + str(i) + " lägenheter")
 
 
 start_up()
