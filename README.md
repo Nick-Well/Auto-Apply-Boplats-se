@@ -7,7 +7,7 @@ ask for you prefrences
 
 takes out the ones that match your chouses and applies to thouse apartment
 # install:
-you will need python 3, firefox, pip, selenium, BeautifulSoup4
+you will need python3, geckodriver, python-pip, selenium, BeautifulSoup4
 
 
 # todo:
