@@ -16,7 +16,7 @@ today = datetime.today().date()
 day_of_month = today.day
 
 options = Options()
-options.headless = True
+options.add_argument("--headless")
 driver = webdriver.Firefox(options=options)
 
 system = platform.system()
