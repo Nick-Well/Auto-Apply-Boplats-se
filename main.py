@@ -16,7 +16,7 @@ today = datetime.today().date()
 day_of_month = today.day
 
 options = Options()
-options.headless = True
+options.add_argument("-headless")
 driver = webdriver.Firefox(options=options)
 
 system = platform.system()
@@ -121,17 +121,17 @@ class Counters:
 
     def __getitem__(self, index):
         if index == 0:
-            return self.object_type
+            return self.count
         elif index == 1:
-            return self.rent
+            return self.count_left
         else:
             raise IndexError
 
     def __setitem__(self, index, value):
         if index == 0:
-            self.object_type = value
+            self.count = value
         elif index == 1:
-            self.rent = value
+            self.count_left = value
         else:
             raise IndexError
 
@@ -343,7 +343,7 @@ def search_and_destroy(url_filters):
             print("söker till lägenheten: " + link)
             driver.get(link)
             driver.find_element(By.XPATH, "//*[@id=\"large-apply-button\"]").click()
-        i = +1
+        i = i + 1
     if not new_link_list:
         print("Det finns inget att söka")
     print("har sökt: " + str(i) + " lägenheter")
