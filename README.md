@@ -13,7 +13,7 @@ you will need python3, geckodriver, python-pip, selenium, BeautifulSoup4
 # todo:
 
 Add more comments in the code
-make it easyer to install.
+Make it easyer to install.
+gui?
 
-restart the filter/login
 
