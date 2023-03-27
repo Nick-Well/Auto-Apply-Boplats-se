@@ -260,7 +260,7 @@ def check_counter():
     bol = False
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    # the only objects that use class removebutton is the actually applied apartments
+    # the only objects that use class removebutton is the actually applied apartment
     Counters.count = len(soup.find_all(class_='removebutton'))
     Counters.count_left = 5 - Counters.count
     if Counters.count != 5:
