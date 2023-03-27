@@ -169,14 +169,14 @@ def entry():
     check_reset = True
     with keyboard.Listener(on_press=on_press_clear) as listener:
 
-        for j in range(10):
+        for j in range(5):
             clear_screen()
             print("\nWelcome, this script is made to make it easier to look for apartment without actually "
                   "having to go in on the web page.\n")
             print("Also the settings are ment to be persistent so you can add this as a automatic service\n"
                   "I would recommend to put it on 2am every day as new apartments get added att 1am.\n\n" 
                   "Reset settings by pressing any key.\n"
-                  "Continues in: " + str(10-j)+"s")
+                  "Continues in: " + str(5-j)+"s")
             time.sleep(1)
             j += 1
             if not listener.running:
