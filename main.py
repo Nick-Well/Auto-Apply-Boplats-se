@@ -3,8 +3,10 @@ import getpass
 import platform
 import subprocess
 import time
+
 from datetime import datetime
 
+from pynput import keyboard
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -113,6 +115,7 @@ class UrlFilter:
 
 
 class Counters:
+    count_left = None
     _instance = None
 
     def __init__(self, count, count_left):
@@ -136,6 +139,18 @@ class Counters:
             raise IndexError
 
 
+class Reset:
+    _value = True
+
+    @classmethod
+    def get_value(cls):
+        return cls._value
+
+    @classmethod
+    def set_value(cls, value):
+        cls._value = value
+
+
 def clear_screen():
     switcher = {
         "Darwin": subprocess.run('clear', shell=True),
@@ -145,17 +160,42 @@ def clear_screen():
     return switcher.get(system)
 
 
+def on_press_clear(key):
+    print(key)
+    return False  # Stop the listener
+
+
+def entry():
+    check_reset = True
+    with keyboard.Listener(on_press=on_press_clear) as listener:
+
+        for j in range(10):
+            clear_screen()
+            print("\nWelcome, this script is made to make it easier to look for apartment without actually "
+                  "having to go in on the web page.\n")
+            print("Also the settings are ment to be persistent so you can add this as a automatic service\n"
+                  "I would recommend to put it on 2am every day as new apartments get added att 1am.\n\n" 
+                  "Reset settings by pressing any key.\n"
+                  "Continues in: " + str(10-j)+"s")
+            time.sleep(1)
+            j += 1
+            if not listener.running:
+                check_reset = False
+                break
+    if not check_reset:
+        return False
+
+
 def start_up():
     userdata = ["name", "pass", "consist"]
+    if entry() == False:
+        userdata[2] = "n"
+        Reset.set_value(False)
+
     user = UserData(*userdata)
     clear_screen()
-    print("\nWelcome, this script is made to make it easier to look for apartment without actually "
-          "having to go in on the web page.\n")
-    print("Also the settings are ment to be persistent so you can add this as a automatic service\n"
-          "I would recommend to put it on 2am every day as new apartments get added att 1am.\n")
-    time.sleep(10)
-    clear_screen()
-    if user.consist != "x":
+
+    if user.consist != "n":
         try:
             for_login = open("userdata.txt", "r", encoding='utf-8')
             user.consist = for_login.readlines()[2]
@@ -164,7 +204,6 @@ def start_up():
             user.consist = "n"
         except FileNotFoundError:
             user.consist = "n"
-
     if user.consist == "n":
 
         print("I will not check your login. So wright it correctly or it wont work")
@@ -183,7 +222,6 @@ def start_up():
             print("sparat")
     else:
         user = UserData.from_file('userdata.txt')
-
     login(user)
 
 
@@ -198,7 +236,6 @@ def login(user):
 
     # checking if valid userdata
     if check_login():
-
         # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
         if check_counter():
             filter_funktion()
@@ -237,8 +274,11 @@ def check_counter():
 
 def filter_funktion():
     url_filter = ["object_type", "rent", "square_meters", "rooms", "consist"]
+    if not Reset.get_value():
+        print(Reset.get_value())
+        url_filter[4] = "n"
     poll_filters = UrlFilter(*url_filter)
-    if poll_filters[4] != "x":
+    if poll_filters[4] != "n":
         try:
             for_filter = open("filterdata.txt", "r", encoding='utf-8')
             poll_filters[4] = for_filter.readlines()[4]

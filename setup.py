@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'selenium',
         'beautifulsoup4',
-        'webdriver_manager'
+        'webdriver_manager',
+        'pynput'
     ],
 )
