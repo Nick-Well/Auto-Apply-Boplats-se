@@ -1,5 +1,6 @@
 from setuptools import setup
 
+
 setup(
     name='BoPlatsAutomatic',
     version='1',

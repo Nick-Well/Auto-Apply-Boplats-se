@@ -184,11 +184,13 @@ def entry():
                 break
     if not check_reset:
         return False
+    else:
+        return True
 
 
 def start_up():
     userdata = ["name", "pass", "consist"]
-    if entry() == False:
+    if not entry():
         userdata[2] = "n"
         Reset.set_value(False)
 
@@ -236,7 +238,7 @@ def login(user):
 
     # checking if valid userdata
     if check_login():
-        # boplats doesn't let you have more than 5 ongoing apartments so if its 5 it skips looking
+        # boplats doesn't let you have more than 5 ongoing flats so if its 5 it skips looking
         if check_counter():
             filter_funktion()
 
@@ -260,7 +262,7 @@ def check_counter():
     bol = False
     driver.get('https://nya.boplats.se/minsida/ansokta')
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    # the only objects that use class removebutton is the actually applied apartment
+    # the only objects that use class removebutton is the actually applied flats
     Counters.count = len(soup.find_all(class_='removebutton'))
     Counters.count_left = 5 - Counters.count
     if Counters.count != 5:
@@ -368,7 +370,7 @@ def search_and_destroy(url_filters):
             numbers = re.findall(r'\d+', text)
             # if you have applied there will only be one number so
             # checking if there's 2 gives you the option,
-            # only to make a list that have apartment that you can apply too
+            # only to make a list that have flat that you can apply too
             if len(numbers) == 2:
                 procent.append(int(numbers[1]) / int(numbers[0]))
                 new_link_list.append(link)
