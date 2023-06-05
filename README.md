@@ -1,19 +1,25 @@
-# Automaticly scrape and look for apartments on boplats
-att this point the script does what it should. that would be:
+<h1>Automaticly scrape and look for apartments on boplats</h1>
+<p>
+script that needs some love
+</p>
+<h2>Requirements:</h2>
 
-makes you log in
+	python3, python3-pip, selenium, BeautifulSoup4, geckodriver, webdriver_manager, pynput
 
-ask for you prefrences
+<h2>Linux</h2>
+<h3>Debian</h3>
 
-takes out the ones that match your chouses and applies to thouse apartment
-# install:
-you will need python3, geckodriver, python-pip, selenium, BeautifulSoup4
+	sudo apt install python3 python3-pip && python pip install selenium BeautifulSoup4 pynput
 
+<h3>Arch</h3>
 
-# todo:
+	sudo pacman -S python python-pip && pip install selenium BeautifulSoup4 pynput
 
-Add more comments in the code
-Make it easyer to install.
-gui?
-
+<h2>TODO:</h2>
+<ul>
+	<li>Docker container for ez of use</li>
+	<li>Add more comments in the code</li>
+	<li>Make it easyer to install. <i>barebones</i> </li>
+	<li>gui?</li>
+</ul>
 
