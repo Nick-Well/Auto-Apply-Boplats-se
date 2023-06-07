@@ -356,16 +356,11 @@ def search_and_destroy(url_filters):
     # going through all the links
     for link in link_list:
         driver.get(link)
-        element = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]"
-                                                "/div/div/div/div/div/div[1]"
-                                                "/div/div[2]/div[3]/p[5]/span[2]")
+        element = driver.find_element(By.XPATH, "//*[@id=\"maincontent\"]/div/div[1]/div/div[2]/div[4]/p[5]/span[2]/strong") # date checker "Anmäl senast:"
         cleaned_text = int(re.sub('[a-zA-Z\W_]', "", element.text))
         # singel out: one day deadline
         if cleaned_text == day_of_month:
-            applicant = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]"
-                                                      "/div/div/div/div/div/div[1]"
-                                                      "/div/div[2]/div[4]/div[2]/p"
-                                                      "/span/strong/a")
+            applicant = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]/div/div/div/div/div/div[1]/div/div[2]/div[5]/div[2]/p/span/strong/a")
             text = applicant.text
             numbers = re.findall(r'\d+', text)
             # if you have applied there will only be one number so
