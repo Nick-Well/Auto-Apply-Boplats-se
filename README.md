@@ -11,11 +11,15 @@ script that needs some love
 <h2>Linux</h2>
 <h3>Debian</h3>
 
-	sudo apt install git python3 python3-pip && python pip install selenium BeautifulSoup4 pynput && git fetch https://github.com/Nick-Well/boplats.git
+	sudo apt install git python3 python3-pip
+	python pip install selenium BeautifulSoup4 pynput
+	git fetch https://github.com/Nick-Well/boplats.git
 
 <h3>Arch</h3>
 
-	sudo pacman -S git python python-pip && pip install selenium BeautifulSoup4 pynput && git fetch https://github.com/Nick-Well/boplats.git
+	sudo pacman -S git python python-pip
+	pip install selenium BeautifulSoup4 pynput
+	git fetch https://github.com/Nick-Well/boplats.git
 
 <h2>TODO:</h2>
 <ul>
