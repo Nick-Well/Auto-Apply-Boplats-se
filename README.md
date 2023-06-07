@@ -12,7 +12,7 @@ script that needs some love
 <h3>Debian</h3>
 
 	sudo apt install git python3 python3-pip
-	python pip install selenium BeautifulSoup4 pynput
+	pip install selenium BeautifulSoup4 pynput
 	git fetch https://github.com/Nick-Well/boplats.git
 
 <h3>Arch</h3>
