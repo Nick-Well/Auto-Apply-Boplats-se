@@ -2,8 +2,9 @@
 
 <h2>Automaticly scrape and look for apartments on boplats</h2>
 <p>
-script that needs some love
-</p>
+script that needs some love</br>
+</p> 
+
 <h2>Requirements:</h2>
 
 	python3, python3-pip, selenium, BeautifulSoup4, geckodriver, webdriver_manager, pynput
@@ -27,5 +28,6 @@ script that needs some love
 	<li>Add more comments in the code</li>
 	<li>Make it easyer to install. <i>barebones</i> </li>
 	<li>gui?</li>
+	<li>Change from xpath to id/name/class</li>
 </ul>
 
