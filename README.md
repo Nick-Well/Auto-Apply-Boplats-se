@@ -14,13 +14,13 @@ script that needs some love</br>
 
 	sudo apt install git python3 python3-pip
 	pip install selenium BeautifulSoup4 pynput
-	git fetch https://github.com/Nick-Well/boplats.git
+	git clone https://github.com/Nick-Well/boplats.git
 
 <h3>Arch</h3>
 
 	sudo pacman -S git python python-pip
 	pip install selenium BeautifulSoup4 pynput
-	git fetch https://github.com/Nick-Well/boplats.git
+	git clone https://github.com/Nick-Well/boplats.git
 
 <h2>TODO:</h2>
 <ul>
