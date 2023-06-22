@@ -3,6 +3,8 @@
 <h2>Automaticly scrape and look for apartments on boplats</h2>
 <p>
 script that needs some love</br>
+yea, some real love. for installation on ubuntu server you will need xorg</br>
+also firefox-esr. pynput is creating alot of problems so will patch.
 </p> 
 
 <h2>Requirements:</h2>
@@ -29,5 +31,6 @@ script that needs some love</br>
 	<li>Make it easyer to install. <i>barebones</i> </li>
 	<li>gui?</li>
 	<li>Change from xpath to id/name/class</li>
+	<li>remove pynput</li>
 </ul>
 
