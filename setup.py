@@ -367,11 +367,12 @@ def search_and_destroy(url_filters):
     # going through all the links
     for link in link_list:
         driver.get(link)
-        element = driver.find_element(By.XPATH, "//*[@id=\"maincontent\"]/div/div[1]/div/div[2]/div[4]/p[5]/span[2]/strong") # date checker "Anmäl senast:"
-        cleaned_text = int(re.sub('[a-zA-Z\W_]', "", element.text))
+        elements = driver.find_elements(By.CLASS_NAME, "properties-grouping")
+        cleaned_text = elements[1].text.split(":")[-1].split(" ")[1]# date checker "Anmäl senast:"
+
         # singel out: one day deadline
         if cleaned_text == day_of_month:
-            applicant = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[6]/div/div/div/div/div/div[1]/div/div[2]/div[5]/div[2]/p/span/strong/a")
+            applicant = driver.find_element(By.ID, "predicted-position")
             text = applicant.text
             numbers = re.findall(r'\d+', text)
             # if you have applied there will only be one number so
@@ -390,7 +391,7 @@ def search_and_destroy(url_filters):
         else:
             print("söker till lägenheten: " + link)
             driver.get(link)
-            driver.find_element(By.XPATH, "//*[@id=\"large-apply-button\"]").click()
+            driver.find_element(By.ID, "small-apply-button").click()
         i = i + 1
     if not new_link_list:
         print("Det finns inget att söka")
