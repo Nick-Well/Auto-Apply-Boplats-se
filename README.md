@@ -30,7 +30,6 @@ also firefox-esr. pynput is creating alot of problems so will patch.
 	<li>Add more comments in the code</li>
 	<li>Make it easyer to install. <i>barebones</i> </li>
 	<li>gui?</li>
-	<li>Change from xpath to id/name/class</li>
 	<li>remove pynput</li>
 </ul>
 
